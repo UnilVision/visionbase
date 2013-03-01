@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=GBK" />
+</head>
+<body>
+
+<p>
+	<br />
+	
+</p>
+<p>
+	原论文名称：<em>Non-parametricModel for Background Subtraction</em>
+</p>
+<p>
+	原作者：AhmedElgammal, David Harwood, Larry Davis 
+</p>
+<p>
+	出处：ECCV会议, 2000.
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	KDE2000是使用Kernel Density Estimation（KDE）做背景建模的基础算法之一，目前被引用的次数已经超过了1500次。后来无数的算法都延续，或者是基于这个思路来考虑静态背景建模和运动检测。先简单介绍下论文的几个思路及关键步骤：
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;背景像素建模的算法：
+</p>
+<p>
+	KDE2000对当前某个像素是否属于背景的概率采用标准的KDE算法计算：
+</p>
+<p>
+	<a href="http://www.codecogs.com/eqnedit.php?latex=Pr(x_t) = \frac{1}{N} \sum_{i=1}^{N} \prod_{j=1}^{d}\frac{1}{\sqrt{2\pi\sigma_j^2}}e^{-\frac{1}{2}\frac{(x_{t_j}-x_{i_j})^2}{\sigma_j^2}}" target="_blank"><img src="http://latex.codecogs.com/png.latex?Pr(x_t) = \frac{1}{N} \sum_{i=1}^{N} \prod_{j=1}^{d}\frac{1}{\sqrt{2\pi\sigma_j^2}}e^{-\frac{1}{2}\frac{(x_{t_j}-x_{i_j})^2}{\sigma_j^2}}" title="Pr(x_t) = \frac{1}{N} \sum_{i=1}^{N} \prod_{j=1}^{d}\frac{1}{\sqrt{2\pi\sigma_j^2}}e^{-\frac{1}{2}\frac{(x_{t_j}-x_{i_j})^2}{\sigma_j^2}}" alt="" /></a>（1）
+</p>
+<p>
+	其中：
+</p>
+<p>
+	<a href="http://www.codecogs.com/eqnedit.php?latex=X_t" target="_blank"><img src="http://latex.codecogs.com/gif.latex?X_t" title="X_t" alt="" /></a>代表当前的像素值；
+</p>
+<p>
+	N是对每个像素采样的背景像素个数；就是当前像素的背景向量。
+</p>
+<p>
+	d是每个像素的向量维度，例如对于(R,G,B)彩色图像，就是3；
+</p>
+<p>
+	<a href="http://www.codecogs.com/eqnedit.php?latex=\sigma_j" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\sigma_j" title="\sigma_j" alt="" /></a>是每个维度上的方差，用于描述像素的噪声水平。<a href="http://www.codecogs.com/eqnedit.php?latex=\sigma_j" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\sigma_j" title="\sigma_j" alt="" /></a>越大，这个像素点被作为背景的概率一定越高。
+</p>
+<p>
+	以上可以看出，KDE2000在前期是对每个像素独立建模，每个维度独立建模。
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关于方差<a href="http://www.codecogs.com/eqnedit.php?latex=\sigma_j" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\sigma_j" title="\sigma_j" alt="" /></a>的建模及像素点的采样方法：
+</p>
+<p>
+	KDE2000的作者认为在实际的视频中，会出现两种像素值变化的情况：
+</p>
+<p>
+	1）&nbsp;&nbsp;&nbsp; 像素值从物体A的颜色跳变到物体B的颜色，或者说背景变前景，前景变背景。
+</p>
+<p>
+	2）&nbsp;&nbsp;&nbsp; 像素上同是物体A，但是由于噪声或者图像模糊等引起的变化。
+</p>
+<p>
+	而原作者认为<a href="http://www.codecogs.com/eqnedit.php?latex=\sigma_j" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\sigma_j" title="\sigma_j" alt="" /></a>应该反映第二种变化，而非第一种。为了明确的对第二个变化进行建模，KDE2000采用了连续帧采样的模式，即对同一个相似度，每次对连续的两帧图像进行采样。通过计算<a href="http://www.codecogs.com/eqnedit.php?latex=|x_i-x_{i@plus;1}|" target="_blank"><img src="http://latex.codecogs.com/gif.latex?|x_i-x_{i+1}|" title="|x_i-x_{i+1}|" alt="" /></a>的均值m来确定最终的方差：
+</p>
+<p>
+	<a href="http://www.codecogs.com/eqnedit.php?latex=\sigma_j = \frac{m}{0.68\sqrt{2}}" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\sigma_j = \frac{m}{0.68\sqrt{2}}" title="\sigma_j = \frac{m}{0.68\sqrt{2}}" alt="" /></a>
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关于领域的建模
+</p>
+<p>
+	虽然KDE2000在前期对每个像素独立建模，但是在实际应用过程中，这种算法对于一些微小的扰动是非常敏感的，最典型的例如树枝的微小晃动等。为了避免这些情况，KDE2000使用两个步骤来实现背景检测：
+</p>
+<p>
+	1）&nbsp;&nbsp;&nbsp; 使用式（1）做前期的背景判定，如果概率大于一个阈值th0，那么就被认为是背景像素，否则就是前景候选像素。
+</p>
+<p>
+	2）&nbsp;&nbsp;&nbsp; 在上面的前景候选像素中，对于某一个前景像素，使用其领域的KDE来计算该像素属于背景的概率，如果其最大值大于一个阈值th1：
+</p>
+<p>
+	<a href="http://www.codecogs.com/eqnedit.php?latex=P_N(x_t) = \max_{y\in N(x)}{Pr(x_t|B_y)}" target="_blank"><img src="http://latex.codecogs.com/png.latex?P_N(x_t) = \max_{y\in N(x)}{Pr(x_t|B_y)}" title="P_N(x_t) = \max_{y\in N(x)}{Pr(x_t|B_y)}" alt="" /></a>
+</p>
+<p>
+	并且其连通的前景候选区域属于背景的总体概率大于另一个阈值th2，那么这个像素就可以认为是背景。
+</p>
+<p>
+	<a href="http://www.codecogs.com/eqnedit.php?latex=Pc=\prod_{x\in C}P_{N(x)}" target="_blank"><img src="http://latex.codecogs.com/gif.latex?Pc=\prod_{x\in C}P_{N(x)}" title="Pc=\sum_{x\in C}P_{N(x)}" alt="" /></a>&nbsp;
+</p>
+<p>
+	注意在KDE2000中，第二步的计算是其核心，如果失去了第二步来综合考虑像素领域的情况，效果可以说是惨不忍睹的。
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;背景更新方法
+</p>
+<p>
+	这个说简单些，读者们自己体会下吧。两个模型，一个短模型，每帧采样。一个长模型，隔一段时间采样一次。短模型中只有当前被判断为背景模型的像素才会被加入到背景模型中，长模型中则不管前后背景，全加入背景模型中，用于消除ghost。这个实际应用需要自己调整，自适应模型是把双刃剑。
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	好了，上述就是KDE2000的核心思路了，而对于Shadow去除的方法，由于适应情况太少，这里不做过多的讨论，下面就针对上述算法细化下实现。完整实现代码和原论文都可以在以下地址找到：
+</p>
+<p>
+	<a href="https://github.com/UnilVision/visionbase/tree/master/background%20modeling/baseline/kde2000">https://github.com/UnilVision/visionbase/tree/master/background%20modeling/baseline/kde2000</a>
+</p>
+<p>
+	代码使用纯C书写，具备较好的移植性。PC测试使用OpenCV1.1的环境。
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	关于实现上的一些细节：
+</p>
+<p>
+	1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;式（1）查表，否则效率太低。
+</p>
+<p>
+	2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;像素点的采样和<a href="http://www.codecogs.com/eqnedit.php?latex=\sigma_j" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\sigma_j" title="\sigma_j" alt="" /></a>的计算方式，不见得很好。代码中对<a href="http://www.codecogs.com/eqnedit.php?latex=\sigma_j" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\sigma_j" title="\sigma_j" alt="" /></a>进行了最大最小限制。
+</p>
+<p>
+	3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;该实现不带阴影处理。
+</p>
+<p>
+	4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;直接初始化运行，无需背景学习步骤。Ghost物体由长模型负责剔除。
+</p>
+<p>
+	5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;噪声滤除。
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	测试视频结果：
+</p>
+<p>
+	<img src="https://raw.github.com/UnilVision/visionbase/0cb4748a71321c2f483aac18785acb6767a498aa/background%20modeling/baseline/kde2000/Samples/sample0.png" alt="" />
+</p>
+<p>
+	<img src="https://raw.github.com/UnilVision/visionbase/0cb4748a71321c2f483aac18785acb6767a498aa/background%20modeling/baseline/kde2000/Samples/sample1.png" alt="" />
+</p>
+<p>
+	<img src="https://raw.github.com/UnilVision/visionbase/0cb4748a71321c2f483aac18785acb6767a498aa/background%20modeling/baseline/kde2000/Samples/sample2.png" alt="" />
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	最后，关于KDE2000的几点想法：
+</p>
+<p>
+	<br />
+	
+</p>
+<p>
+	1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;相对采用Mixture Model（如GMM）的方法，KDE2000的短模型对于运动非常敏感。当然本质上KDE也是一个Mixture Model，只是每个样本对应一个较小的方差而已。
+</p>
+<p align="left">
+	2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;短模型和长模型，其实匹配起来并不顺畅，会存在跳变。也就是说前后帧的Temporal Consistence并不好，至少在长模型采样的时候是这样。另外在运行测试程序的时候可以看出，长模型的更新算法虽然可以消除ghost物体，但是也会相应的降低正检率，特别是配合KDE2000算法中的第二个步骤。
+</p>
+<p align="left">
+	3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;效率，应该说同等优化的情况下，KDE要比GMM慢。
+</p>
+<p align="left">
+	4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;背景更新，KDE这种非参数化模型的最大优势就是在线学习实现简单，可扩展性极好。
+</p>
+<p align="left">
+	&nbsp;
+</p>
+<p align="left">
+	<br />
+	
+</p>
+
+</body>
+</html>
