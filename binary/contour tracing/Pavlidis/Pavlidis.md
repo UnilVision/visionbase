@@ -22,7 +22,7 @@
 
 	在Figure 1中，当前方向为上，如果当前方向为左，那么P1，P2，P3就会变成左下像素，左边像素以及左上像素。总之从当前方向的视角看出，P1，P2，P3是与上图一致的。补充几张图：
 
-	![Alt text]()![Alt text]()![Alt text]()
+	![Alt text](https://raw.github.com/UnilVision/visionbase/master/binary/contour%20tracing/Pavlidis/1.png)     ![Alt text](https://raw.github.com/UnilVision/visionbase/master/binary/contour%20tracing/Pavlidis/2.png)    ![Alt text](https://raw.github.com/UnilVision/visionbase/master/binary/contour%20tracing/Pavlidis/3.png)
 
 有了以上定义，算法的步骤如下:
 
@@ -49,4 +49,4 @@
 
 参考结果：
 
-![Alt text]()
+![Alt text](https://raw.github.com/UnilVision/visionbase/master/binary/contour%20tracing/Pavlidis/result.jpg)
