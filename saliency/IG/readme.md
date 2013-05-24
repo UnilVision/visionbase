@@ -15,4 +15,16 @@ Frequency-tuned Salient Region Detection：一种快速显著物体检测算法
 
 其中<a href="http://www.codecogs.com/eqnedit.php?latex=\textbf{I}_u" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\textbf{I}_u" title="\textbf{I}_u" /></a>为图像的直流分量，即对应每个颜色通道的均值。<a href="http://www.codecogs.com/eqnedit.php?latex=\textbf{I}_{w}(x,y)" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\textbf{I}_{w}(x,y)" title="\textbf{I}_{w}(x,y)" /></a> 为高斯滤波后的图像。
 
+IG算法的纯c的实现：
+[https://github.com/UnilVision/visionbase/tree/master/saliency/IG](https://github.com/UnilVision/visionbase/tree/master/saliency/IG)
+
+结果1：
+![结果1](https://raw.github.com/UnilVision/visionbase/master/saliency/IG/r1.jpg)
+
+结果2：
+![结果1](https://raw.github.com/UnilVision/visionbase/master/saliency/IG/r2.jpg)
+
+关于显著性检测这个命题再说几句废话吧。本文说介绍的算法和Ming-Ming Cheng的Global Contrast based Salient Region Detection等方法均属于无监督算法，通过视觉特征快速的确定画面内较为明显的区域。而另一个算法分支应用了机器学习，通过学习样本来预测新图像中的显著区域。
+
+从单个类别，小样本的数据集上看，后者确实是有优势的。但是问题是在大多数情况下，我们需要的显著性检测是需要非常快速的，例如在数码相机之中自动确定显著区域并进行定焦，在图像识别算法前作为独立特征进行提取，快速确认焦点区域生成缩略图等等。而后者的思路更像Object Detection+Segmentation，也注定了其效率很难超越前者。而在实际的项目中，可以考虑的原则就是如果是针对某个特定物体的，那么后者也许会带来很好的效果，否则就使用第一类算法。
 
