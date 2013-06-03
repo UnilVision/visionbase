@@ -42,4 +42,21 @@ Gabor滤波器虚部：
 
 
 
-滤波结果：
+两个尺度，8方向结果示例：
+
+	src_img = cvLoadImage("test.png", 0);
+	show_img = cvCreateImage(cvSize(src_img->width*8, src_img->height*2), IPL_DEPTH_8U, 1);
+	gabor_filter(8, 3, 3, 0, src_img->imageData, src_img->width, src_img->height, src_img->widthStep, 
+	    show_img->imageData, show_img->width, show_img->height, show_img->widthStep, 0, 0);
+	gabor_filter(8, 3, 7, 0, src_img->imageData, src_img->width, src_img->height, src_img->widthStep,
+	    show_img->imageData, show_img->width, show_img->height, show_img->widthStep, 0, src_img->height);
+
+
+![](https://raw.github.com/UnilVision/visionbase/master/texture/gabor/gabor_vs/test.png)
+![](https://raw.github.com/UnilVision/visionbase/master/texture/gabor/gabor_vs/out.jpg)
+
+
+最后，关于Gabor的实际使用，上述实现是非常慢的，如果保持思路不变，即使经过高强度的代码优化依然不可能达到满意的效率。
+
+最实际应用中，使用频域滤波实现Gabor效率更高。在空间域，另一个优化的方法是在水平和45度，90度的方向上可采用类似高斯核的分解方法，将二维模板分解为一维模板做两次滤波实现。而其余方向的Gabor则通过旋转定位到上述几个角度来实现。
+
